@@ -1,3 +1,4 @@
+import { events } from '../../__mocks__/response/mockEvents.json' assert { type: 'json' };
 import { Event } from '../../types';
 import {
   convertEventToDateRange,
@@ -6,32 +7,122 @@ import {
   parseDateTime,
 } from '../../utils/eventOverlap';
 
-describe.skip('parseDateTime', () => {
-  it('2024-07-01 14:30을 정확한 Date 객체로 변환한다', () => {});
+const INVALID_DATE = new Date('invalid date');
+const CLONED_EVENTS = [...events] as Event[];
 
-  it('잘못된 날짜 형식에 대해 Invalid Date를 반환한다', () => {});
+describe('parseDateTime', () => {
+  it('2024-07-01 14:30을 정확한 Date 객체로 변환한다', () => {
+    expect(parseDateTime('2024-07-01', '14:30')).toEqual(new Date('2024-07-01T14:30'));
+  });
 
-  it('잘못된 시간 형식에 대해 Invalid Date를 반환한다', () => {});
+  it('잘못된 날짜 형식에 대해 Invalid Date를 반환한다', () => {
+    expect(parseDateTime('9999-99-99', '12:00')).toEqual(INVALID_DATE);
+  });
 
-  it('날짜 문자열이 비어있을 때 Invalid Date를 반환한다', () => {});
+  it('잘못된 시간 형식에 대해 Invalid Date를 반환한다', () => {
+    expect(parseDateTime('2025-02-02', '99:99')).toEqual(INVALID_DATE);
+  });
+
+  it('날짜 문자열이 비어있을 때 Invalid Date를 반환한다', () => {
+    expect(parseDateTime('', '12:00')).toEqual(INVALID_DATE);
+  });
 });
 
-describe.skip('convertEventToDateRange', () => {
-  it('일반적인 이벤트를 올바른 시작 및 종료 시간을 가진 객체로 변환한다', () => {});
+describe('convertEventToDateRange', () => {
+  const event = CLONED_EVENTS[0];
 
-  it('잘못된 날짜 형식의 이벤트에 대해 Invalid Date를 반환한다', () => {});
+  it('일반적인 이벤트를 올바른 시작 및 종료 시간을 가진 객체로 변환한다', () => {
+    expect(convertEventToDateRange(event)).toEqual({
+      start: parseDateTime(event.date, event.startTime),
+      end: parseDateTime(event.date, event.endTime),
+    });
+  });
 
-  it('잘못된 시간 형식의 이벤트에 대해 Invalid Date를 반환한다', () => {});
+  it('잘못된 날짜 형식의 이벤트에 대해 Invalid Date를 반환한다', () => {
+    const invalidDateEvent = { ...event, date: '9999-99-99' };
+
+    expect(convertEventToDateRange(invalidDateEvent)).toEqual({
+      start: INVALID_DATE,
+      end: INVALID_DATE,
+    });
+  });
+
+  it('잘못된 시간 형식의 이벤트에 대해 Invalid Date를 반환한다', () => {
+    const invalidTimeEvent = {
+      ...event,
+      startTime: '99:99',
+      endTime: '99:99',
+    };
+
+    expect(convertEventToDateRange(invalidTimeEvent)).toEqual({
+      start: INVALID_DATE,
+      end: INVALID_DATE,
+    });
+  });
 });
 
-describe.skip('isOverlapping', () => {
-  it('두 이벤트가 겹치는 경우 true를 반환한다', () => {});
+describe('isOverlapping', () => {
+  const event = CLONED_EVENTS[0];
 
-  it('두 이벤트가 겹치지 않는 경우 false를 반환한다', () => {});
+  it('두 이벤트가 겹치는 경우 true를 반환한다', () => {
+    expect(
+      isOverlapping(
+        {
+          ...event,
+          date: '2025-02-02',
+          startTime: '09:00',
+          endTime: '10:00',
+        },
+        {
+          ...event,
+          date: '2025-02-02',
+          startTime: '09:30',
+          endTime: '10:30',
+        }
+      )
+    ).toBeTruthy();
+  });
+
+  it('두 이벤트가 겹치지 않는 경우 false를 반환한다', () => {
+    expect(
+      isOverlapping(
+        {
+          ...event,
+          date: '2025-02-02',
+          startTime: '09:00',
+          endTime: '10:00',
+        },
+        {
+          ...event,
+          date: '2025-02-02',
+          startTime: '10:00',
+          endTime: '11:00',
+        }
+      )
+    ).toBeFalsy();
+  });
 });
 
-describe.skip('findOverlappingEvents', () => {
-  it('새 이벤트와 겹치는 모든 이벤트를 반환한다', () => {});
+describe('findOverlappingEvents', () => {
+  const event = CLONED_EVENTS[0];
 
-  it('겹치는 이벤트가 없으면 빈 배열을 반환한다', () => {});
+  it('새 이벤트와 겹치는 모든 이벤트를 반환한다', () => {
+    expect(
+      findOverlappingEvents({ ...event, id: `${CLONED_EVENTS.length + 1}` }, CLONED_EVENTS)
+    ).toHaveLength(1);
+  });
+
+  it('겹치는 이벤트가 없으면 빈 배열을 반환한다', () => {
+    expect(
+      findOverlappingEvents(
+        {
+          ...event,
+          id: `${CLONED_EVENTS.length + 1}`,
+          startTime: '08:00',
+          endTime: '09:00',
+        },
+        CLONED_EVENTS
+      )
+    ).toHaveLength(0);
+  });
 });

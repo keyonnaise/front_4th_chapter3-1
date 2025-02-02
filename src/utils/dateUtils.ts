@@ -4,6 +4,12 @@ import { Event } from '../types.ts';
  * 주어진 년도와 월의 일수를 반환합니다.
  */
 export function getDaysInMonth(year: number, month: number): number {
+  const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+  if (!months.includes(month)) {
+    throw new Error('올바른 달을 입력하세요.');
+  }
+
   return new Date(year, month, 0).getDate();
 }
 
