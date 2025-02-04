@@ -7,8 +7,8 @@ import {
   parseDateTime,
 } from '../../utils/eventOverlap';
 
+const MOCK_EVENTS = [...events] as Event[];
 const INVALID_DATE = new Date('invalid date');
-const CLONED_EVENTS = [...events] as Event[];
 
 describe('parseDateTime', () => {
   it('2024-07-01 14:30을 정확한 Date 객체로 변환한다', () => {
@@ -29,19 +29,23 @@ describe('parseDateTime', () => {
 });
 
 describe('convertEventToDateRange', () => {
-  const event = CLONED_EVENTS[0];
+  const event = MOCK_EVENTS[0];
+  const { date, startTime, endTime } = event;
 
   it('일반적인 이벤트를 올바른 시작 및 종료 시간을 가진 객체로 변환한다', () => {
     expect(convertEventToDateRange(event)).toEqual({
-      start: parseDateTime(event.date, event.startTime),
-      end: parseDateTime(event.date, event.endTime),
+      start: parseDateTime(date, startTime),
+      end: parseDateTime(date, endTime),
     });
   });
 
   it('잘못된 날짜 형식의 이벤트에 대해 Invalid Date를 반환한다', () => {
-    const invalidDateEvent = { ...event, date: '9999-99-99' };
-
-    expect(convertEventToDateRange(invalidDateEvent)).toEqual({
+    expect(
+      convertEventToDateRange({
+        ...event,
+        date: '9999-99-99',
+      })
+    ).toEqual({
       start: INVALID_DATE,
       end: INVALID_DATE,
     });
@@ -62,7 +66,7 @@ describe('convertEventToDateRange', () => {
 });
 
 describe('isOverlapping', () => {
-  const event = CLONED_EVENTS[0];
+  const event = MOCK_EVENTS[0];
 
   it('두 이벤트가 겹치는 경우 true를 반환한다', () => {
     expect(
@@ -104,11 +108,11 @@ describe('isOverlapping', () => {
 });
 
 describe('findOverlappingEvents', () => {
-  const event = CLONED_EVENTS[0];
+  const event = MOCK_EVENTS[0];
 
   it('새 이벤트와 겹치는 모든 이벤트를 반환한다', () => {
     expect(
-      findOverlappingEvents({ ...event, id: `${CLONED_EVENTS.length + 1}` }, CLONED_EVENTS)
+      findOverlappingEvents({ ...event, id: `${MOCK_EVENTS.length + 1}` }, MOCK_EVENTS)
     ).toHaveLength(1);
   });
 
@@ -117,11 +121,11 @@ describe('findOverlappingEvents', () => {
       findOverlappingEvents(
         {
           ...event,
-          id: `${CLONED_EVENTS.length + 1}`,
+          id: `${MOCK_EVENTS.length + 1}`,
           startTime: '08:00',
           endTime: '09:00',
         },
-        CLONED_EVENTS
+        MOCK_EVENTS
       )
     ).toHaveLength(0);
   });

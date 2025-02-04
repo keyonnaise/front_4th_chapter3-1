@@ -20,6 +20,6 @@ afterEach(() => {
 });
 
 afterAll(() => {
-  vi.resetAllMocks();
   server.close();
+  vi.resetAllMocks();
 });

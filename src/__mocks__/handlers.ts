@@ -17,19 +17,17 @@ export const handlers = [
   }),
 
   http.put('/api/events/:id', async ({ params, request }) => {
-    const { id } = params;
     const modifiedEvent = (await request.json()) as Event;
-    const index = events.findIndex((event) => event.id === id);
+    const index = events.findIndex((event) => event.id === params.id);
     return index !== -1
       ? HttpResponse.json(modifiedEvent, { status: 201 })
-      : HttpResponse.json(null, { status: 404 });
+      : new HttpResponse(null, { status: 404 });
   }),
 
   http.delete('/api/events/:id', ({ params }) => {
-    const { id } = params;
-    const index = events.findIndex((event) => event.id === id);
+    const index = events.findIndex((event) => event.id === params.id);
     return index !== -1
-      ? HttpResponse.json(null, { status: 204 })
-      : HttpResponse.json(null, { status: 404 });
+      ? new HttpResponse(null, { status: 204 })
+      : new HttpResponse(null, { status: 404 });
   }),
 ];

@@ -35,21 +35,30 @@ export const setupMockHandlers = (initEvents: Event[] = []) => {
      * PUT /api/events/:id
      */
     http.put(`${EVENTS_ENDPOINT}/:id`, async ({ params, request }) => {
-      const { id } = params;
       const modifiedEvent = (await request.json()) as Event;
-      const index = mockEvents.findIndex((event) => event.id === id);
+
+      mockEvents = mockEvents.map((event) =>
+        event.id === modifiedEvent.id ? modifiedEvent : event
+      );
+
+      const index = mockEvents.findIndex((event) => event.id === params.id);
+
       return index !== -1
         ? HttpResponse.json(modifiedEvent, { status: 201 })
-        : HttpResponse.json(null, { status: 204 });
+        : new HttpResponse(null, { status: 404 });
     }),
 
     /**
      * DELETE /api/events/:id
      */
-    http.put(`${EVENTS_ENDPOINT}/:id`, ({ params }) => {
-      const { id } = params;
-      mockEvents = mockEvents.filter((event) => event.id !== id);
-      return new HttpResponse(null, { status: 204 });
+    http.delete(`${EVENTS_ENDPOINT}/:id`, ({ params }) => {
+      const index = mockEvents.findIndex((event) => event.id === params.id);
+
+      mockEvents = mockEvents.filter((event) => event.id !== params.id);
+
+      return index !== -1
+        ? new HttpResponse(null, { status: 204 })
+        : new HttpResponse(null, { status: 404 });
     })
   );
 };
