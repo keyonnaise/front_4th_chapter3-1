@@ -1,28 +1,36 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act, waitFor } from '@testing-library/react';
+import { render, screen, within, act, waitFor, prettyDOM } from '@testing-library/react';
+import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
 
+import { setupMockHandlers } from '../__mocks__/handlersUtils';
+import { events } from '../__mocks__/response/mockEvents.json' assert { type: 'json' };
 import App from '../App';
 import { server } from '../setupTests';
 import { Event } from '../types';
-import { setupMockHandlers } from '../__mocks__/handlersUtils';
-import { formatDate } from '../utils/dateUtils';
 import { parseHM } from './utils';
+import { formatDate } from '../utils/dateUtils';
 
-import { UserEvent, userEvent } from '@testing-library/user-event';
+const MOCK_EVENTS = events as Event[];
 
 let user: UserEvent;
 
 beforeEach(() => {
+  vi.setSystemTime(new Date('2024-10-01'));
   user = userEvent.setup();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('일정 CRUD 및 기본 기능', () => {
   it('입력한 새로운 일정 정보에 맞춰 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
     // ! HINT. event를 추가 제거하고 저장하는 로직을 잘 살펴보고, 만약 그대로 구현한다면 어떤 문제가 있을 지 고민해보세요.
 
-    setupMockHandlers();
+    setupMockHandlers([]);
+
     render(
       <ChakraProvider>
         <App />
@@ -30,26 +38,24 @@ describe('일정 CRUD 및 기본 기능', () => {
     );
 
     const now = new Date();
-    const startTime = parseHM(now.getTime() + 10 * 60 * 1000);
 
     const form = {
-      id: '1',
       title: '다람쥐 헌 쳇바퀴에 타고파',
       date: formatDate(now),
-      startTime: startTime,
+      startTime: '23:00',
       endTime: '23:58',
       description: '가느다란 몸 부수어 쥔 총칼, 터, 평화',
       location: '장소',
       category: '기타',
     };
 
-    await user.type(screen.getByLabelText('제목'), form.title);
-    await user.type(screen.getByLabelText('날짜'), form.date);
-    await user.type(screen.getByLabelText('시작 시간'), form.startTime);
-    await user.type(screen.getByLabelText('종료 시간'), form.endTime);
-    await user.type(screen.getByLabelText('설명'), form.description);
-    await user.type(screen.getByLabelText('위치'), form.location);
-    await user.type(screen.getByLabelText('카테고리'), form.category);
+    await user.type(screen.getByLabelText(/제목/), form.title);
+    await user.type(screen.getByLabelText(/날짜/), form.date);
+    await user.type(screen.getByLabelText(/시작 시간/), form.startTime);
+    await user.type(screen.getByLabelText(/종료 시간/), form.endTime);
+    await user.type(screen.getByLabelText(/설명/), form.description);
+    await user.type(screen.getByLabelText(/위치/), form.location);
+    await user.selectOptions(screen.getByLabelText(/카테고리/), form.category);
 
     // Promise.all 왜 안됨?
     // await Promise.all([
@@ -62,23 +68,85 @@ describe('일정 CRUD 및 기본 기능', () => {
     //   user.type(screen.getByLabelText('카테고리'), form.category),
     // ]);
 
-    await user.click(screen.getByRole('button', { name: '일정 추가' }));
+    await user.click(screen.getByRole('button', { name: /일정 추가/ }));
 
-    const eventList = screen.getByTestId('event-list');
+    const eventList = await screen.findByTestId('event-list');
 
-    await waitFor(async () => {
-      expect(within(eventList).getByText(form.title)).toBeInTheDocument();
-      expect(within(eventList).getByText(form.date)).toBeInTheDocument();
-      expect(
-        within(eventList).getByText(`${form.startTime} - ${form.endTime}`)
-      ).toBeInTheDocument();
-      expect(within(eventList).getByText(form.description)).toBeInTheDocument();
-      expect(within(eventList).getByText(form.location)).toBeInTheDocument();
-      // expect(within(eventList).getByText(form.category)).toBeInTheDocument();
+    await waitFor(() => {
+      const title = new RegExp(form.title);
+      const date = new RegExp(form.date);
+      const eventTime = new RegExp(`${form.startTime} - ${form.endTime}`);
+      const description = new RegExp(form.description);
+      const location = new RegExp(form.location);
+      const category = new RegExp(form.category);
+
+      expect(within(eventList).getByText(title)).toBeInTheDocument();
+      expect(within(eventList).getByText(date)).toBeInTheDocument();
+      expect(within(eventList).getByText(eventTime)).toBeInTheDocument();
+      expect(within(eventList).getByText(description)).toBeInTheDocument();
+      expect(within(eventList).getByText(location)).toBeInTheDocument();
+      expect(within(eventList).getByText(category)).toBeInTheDocument();
     });
   });
 
-  it.skip('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {});
+  it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
+    setupMockHandlers(MOCK_EVENTS);
+
+    render(
+      <ChakraProvider>
+        <App />
+      </ChakraProvider>
+    );
+
+    const eventList = await screen.findByTestId('event-list');
+    const buttons = await within(eventList).findAllByRole('button', { name: /edit event/i });
+
+    await user.click(buttons[0]);
+
+    const now = new Date();
+
+    const form = {
+      title: '다람쥐 헌 쳇바퀴에 타고파',
+      date: formatDate(now),
+      startTime: '23:00',
+      endTime: '23:58',
+      description: '가느다란 몸 부수어 쥔 총칼, 터, 평화',
+      location: '장소',
+      category: '기타',
+    };
+
+    await user.clear(screen.getByLabelText(/제목/));
+    await user.type(screen.getByLabelText(/제목/), form.title);
+    await user.clear(screen.getByLabelText(/날짜/));
+    await user.type(screen.getByLabelText(/날짜/), form.date);
+    await user.clear(screen.getByLabelText(/시작 시간/));
+    await user.type(screen.getByLabelText(/시작 시간/), form.startTime);
+    await user.clear(screen.getByLabelText(/종료 시간/));
+    await user.type(screen.getByLabelText(/종료 시간/), form.endTime);
+    await user.clear(screen.getByLabelText(/설명/));
+    await user.type(screen.getByLabelText(/설명/), form.description);
+    await user.clear(screen.getByLabelText(/위치/));
+    await user.type(screen.getByLabelText(/위치/), form.location);
+    await user.selectOptions(screen.getByLabelText(/카테고리/), form.category);
+
+    await user.click(screen.getByRole('button', { name: /일정 수정/ }));
+
+    const block = await within(eventList).findByTestId(MOCK_EVENTS[0].id);
+
+    const title = new RegExp(form.title);
+    const date = new RegExp(form.date);
+    const eventTime = new RegExp(`${form.startTime} - ${form.endTime}`);
+    const description = new RegExp(form.description);
+    const location = new RegExp(form.location);
+    const category = new RegExp(form.category);
+
+    expect(within(block).getByText(title)).toBeInTheDocument();
+    expect(within(block).getByText(date)).toBeInTheDocument();
+    expect(within(block).getByText(eventTime)).toBeInTheDocument();
+    expect(within(block).getByText(description)).toBeInTheDocument();
+    expect(within(block).getByText(location)).toBeInTheDocument();
+    expect(within(block).getByText(category)).toBeInTheDocument();
+  });
 
   it.skip('일정을 삭제하고 더 이상 조회되지 않는지 확인한다', async () => {});
 });

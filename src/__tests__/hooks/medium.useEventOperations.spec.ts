@@ -5,7 +5,7 @@ import { setupMockHandlers } from '../../__mocks__/handlersUtils.ts';
 import { events } from '../../__mocks__/response/mockEvents.json' assert { type: 'json' };
 import { useEventOperations } from '../../hooks/useEventOperations.ts';
 import { server } from '../../setupTests.ts';
-import { Event } from '../../types.ts';
+import { Event, EventSchema } from '../../types.ts';
 
 const MOCK_EVENTS = events as Event[];
 
@@ -20,18 +20,18 @@ beforeEach(() => {
 });
 
 it('저장되어있는 초기 이벤트 데이터를 적절하게 불러온다', async () => {
-  setupMockHandlers(MOCK_EVENTS);
-
   const { result } = renderHook(() => useEventOperations(false));
 
   await act(() => result.current.events.length !== 0);
 
-  expect(result.current.events).toEqual(MOCK_EVENTS);
+  const EventsSchema = EventSchema.array();
+  const validateResult = EventsSchema.safeParse(result.current.events);
+
+  expect(validateResult.success).toBe(true);
+  expect(validateResult.data).toEqual(MOCK_EVENTS);
 });
 
 it('정의된 이벤트 정보를 기준으로 적절하게 저장이 된다', async () => {
-  setupMockHandlers(MOCK_EVENTS);
-
   const newEvent: Event = {
     id: `${MOCK_EVENTS.length + 1}`,
     title: '다람쥐 헌 쳇바퀴에 타고파',
@@ -40,7 +40,7 @@ it('정의된 이벤트 정보를 기준으로 적절하게 저장이 된다', a
     endTime: '10:00',
     description: '가느다란 몸 부수어 쥔 총칼, 터, 평화',
     location: '장소',
-    category: '분류',
+    category: '기타',
     repeat: {
       type: 'none',
       interval: 0,
@@ -58,8 +58,6 @@ it('정의된 이벤트 정보를 기준으로 적절하게 저장이 된다', a
 });
 
 it("새로 정의된 'title', 'endTime' 기준으로 적절하게 일정이 업데이트 된다", async () => {
-  setupMockHandlers(MOCK_EVENTS);
-
   const modifiedEvent = {
     ...MOCK_EVENTS[0],
     title: '다람쥐 헌 쳇바퀴에 타고파',
@@ -74,8 +72,6 @@ it("새로 정의된 'title', 'endTime' 기준으로 적절하게 일정이 업�
 });
 
 it('존재하는 이벤트 삭제 시 에러없이 아이템이 삭제된다.', async () => {
-  setupMockHandlers(MOCK_EVENTS);
-
   const { result } = renderHook(() => useEventOperations(false));
 
   await act(() => result.current.events.length !== 0);
