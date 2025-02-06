@@ -1,4 +1,4 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 
 import { useNotifications } from '../../feature/feedback/model';
 import { formatDate } from '../../shared/lib';
@@ -21,7 +21,7 @@ it('초기 상태에서는 알림이 없어야 한다', () => {
 
 it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다', async () => {
   const now = new Date();
-  const startTime = parseHM(now.getTime() + 10 * 60 * 1000);
+  const startTime = parseHM(now.getTime() + 2 * 60 * 1000);
 
   const event: Event = {
     id: '1',
@@ -36,7 +36,7 @@ it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다
       type: 'none',
       interval: 0,
     },
-    notificationTime: 10,
+    notificationTime: 2,
   };
 
   const { result } = renderHook(() => useNotifications([event]));

@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 
-import { useCalendarView } from '../../widgets/calendar/model';
+import { useCalendarView } from '../../widgets/schedule/model/index.ts';
 import { assertDate } from '../utils.ts';
 
 beforeEach(() => {

@@ -1,8 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Heading, HStack, IconButton, Select, VStack } from '@chakra-ui/react';
 
-import { MonthView } from '../../../feature/month-view/ui';
-import { WeekView } from '../../../feature/week-view/ui';
+import { MonthView, WeekView } from '../../../feature/calendar/ui';
 import { getWeeksAtMonth } from '../../../shared/lib';
 import { Event } from '../../../types';
 
@@ -18,7 +17,7 @@ interface Props {
   setView(value: React.SetStateAction<'week' | 'month'>): void;
 }
 
-function Calendar({
+function Schedule({
   view,
   holidays,
   filteredEvents,
@@ -74,4 +73,4 @@ function Calendar({
   );
 }
 
-export default Calendar;
+export default Schedule;

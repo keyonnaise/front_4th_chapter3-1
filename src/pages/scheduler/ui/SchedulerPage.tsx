@@ -5,9 +5,9 @@ import { useNotifications } from '../../../feature/feedback/model';
 import { Notifications, OverlapDialog } from '../../../feature/feedback/ui';
 import { findOverlappingEvents } from '../../../shared/lib';
 import { Event, EventForm } from '../../../types';
-import { useCalendarView } from '../../../widgets/calendar/model';
-import { Calendar } from '../../../widgets/calendar/ui';
 import { SaveEvent } from '../../../widgets/save-event/ui';
+import { useCalendarView } from '../../../widgets/schedule/model';
+import { Schedule } from '../../../widgets/schedule/ui';
 import { SearchEvent } from '../../../widgets/search-event/ui';
 import { useEventForm, useEventOperations, useSearch } from '../model';
 
@@ -149,7 +149,7 @@ function SchedulerPage() {
           handleEndTimeChange={handleEndTimeChange}
         />
 
-        <Calendar
+        <Schedule
           view={view}
           holidays={holidays}
           filteredEvents={filteredEvents}
