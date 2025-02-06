@@ -13,8 +13,8 @@ import {
   VStack,
 } from '@chakra-ui/react';
 
+import { formatDate, formatMonth, getEventsForDay } from '../../../shared/lib';
 import { Event } from '../../../types';
-import { formatDate, formatMonth, getEventsForDay } from '../../../utils/dateUtils';
 
 interface Props {
   weekDays: string[];

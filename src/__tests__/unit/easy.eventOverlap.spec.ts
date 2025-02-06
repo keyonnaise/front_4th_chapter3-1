@@ -1,11 +1,11 @@
 import { events } from '../../__mocks__/response/mockEvents.json' assert { type: 'json' };
-import { Event } from '../../types';
 import {
   convertEventToDateRange,
   findOverlappingEvents,
   isOverlapping,
   parseDateTime,
-} from '../../utils/eventOverlap';
+} from '../../shared/lib';
+import { Event } from '../../types';
 
 const MOCK_EVENTS = [...events] as Event[];
 const INVALID_DATE = new Date('invalid date');

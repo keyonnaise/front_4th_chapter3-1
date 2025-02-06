@@ -1,5 +1,4 @@
 import { events } from '../../__mocks__/response/mockEvents.json' assert { type: 'json' };
-import { Event } from '../../types';
 import {
   fillZero,
   formatDate,
@@ -10,7 +9,8 @@ import {
   getWeekDates,
   getWeeksAtMonth,
   isDateInRange,
-} from '../../utils/dateUtils';
+} from '../../shared/lib';
+import { Event } from '../../types';
 
 const MOCK_EVENTS = [...events] as Event[];
 

@@ -3,6 +3,7 @@ import { Heading, HStack, IconButton, Select, VStack } from '@chakra-ui/react';
 
 import { MonthView } from '../../../feature/month-view/ui';
 import { WeekView } from '../../../feature/week-view/ui';
+import { getWeeksAtMonth } from '../../../shared/lib';
 import { Event } from '../../../types';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
@@ -14,7 +15,6 @@ interface Props {
   notifiedEvents: string[];
   currentDate: Date;
   navigate(direction: 'prev' | 'next'): void;
-  getWeeksAtMonth(currentDate: Date): (number | null)[][];
   setView(value: React.SetStateAction<'week' | 'month'>): void;
 }
 
@@ -25,7 +25,6 @@ function Calendar({
   notifiedEvents,
   currentDate,
   navigate,
-  getWeeksAtMonth,
   setView,
 }: Props) {
   return (

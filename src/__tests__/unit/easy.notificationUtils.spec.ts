@@ -1,6 +1,6 @@
 import { events } from '../../__mocks__/response/mockEvents.json' assert { type: 'json' };
+import { createNotificationMessage, getUpcomingEvents } from '../../feature/feedback/lib';
 import { Event } from '../../types';
-import { createNotificationMessage, getUpcomingEvents } from '../../utils/notificationUtils';
 
 const MOCK_EVENTS = [...events] as Event[];
 

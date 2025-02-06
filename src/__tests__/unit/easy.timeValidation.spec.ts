@@ -1,4 +1,4 @@
-import { getTimeErrorMessage } from '../../utils/timeValidation';
+import { getTimeErrorMessage } from '../../shared/lib';
 
 const START_TIME_ERROR_MESSAGE = '시작 시간은 종료 시간보다 빨라야 합니다.';
 const END_TIME_ERROR_MESSAGE = '종료 시간은 시작 시간보다 늦어야 합니다.';

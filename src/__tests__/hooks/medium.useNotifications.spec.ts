@@ -1,8 +1,8 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 
-import { useNotifications } from '../../hooks/useNotifications.ts';
+import { useNotifications } from '../../feature/feedback/model';
+import { formatDate } from '../../shared/lib';
 import { Event } from '../../types.ts';
-import { formatDate } from '../../utils/dateUtils.ts';
 import { parseHM } from '../utils.ts';
 
 beforeEach(() => {
@@ -19,7 +19,7 @@ it('초기 상태에서는 알림이 없어야 한다', () => {
   expect(result.current.notifications).toHaveLength(0);
 });
 
-it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다', () => {
+it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다', async () => {
   const now = new Date();
   const startTime = parseHM(now.getTime() + 10 * 60 * 1000);
 
@@ -41,7 +41,7 @@ it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다
 
   const { result } = renderHook(() => useNotifications([event]));
 
-  act(() => vi.advanceTimersByTime(1000));
+  await act(() => vi.advanceTimersByTime(1000));
 
   expect(result.current.notifications).toHaveLength(1);
 });

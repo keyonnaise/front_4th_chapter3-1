@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 
 import { events } from '../../__mocks__/response/mockEvents.json' assert { type: 'json' };
-import { useSearch } from '../../hooks/useSearch.ts';
+import { useSearch } from '../../pages/scheduler/model/index.ts';
 import { Event } from '../../types.ts';
 
 const CLONED_EVENTS = [...events] as Event[];

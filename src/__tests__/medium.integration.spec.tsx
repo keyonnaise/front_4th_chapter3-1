@@ -7,7 +7,7 @@ import { events } from '../__mocks__/response/mockEvents.json' assert { type: 'j
 import App from '../App';
 import { Event } from '../types';
 import { parseHM } from './utils';
-import { formatDate } from '../utils/dateUtils';
+import { formatDate } from '../shared/lib';
 
 const MOCK_EVENTS = events as Event[];
 

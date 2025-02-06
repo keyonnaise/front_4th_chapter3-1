@@ -11,8 +11,8 @@ import {
   VStack,
 } from '@chakra-ui/react';
 
+import { getTimeErrorMessage } from '../../../shared/lib';
 import { Event, RepeatType } from '../../../types';
-import { TimeValidationResult } from '../../../utils/timeValidation';
 
 const categories = ['업무', '개인', '가족', '기타'];
 
@@ -34,7 +34,6 @@ interface Props {
   editingEvent: Event | null;
   isRepeating: boolean;
   addOrUpdateEvent(): Promise<void>;
-  getTimeErrorMessage(start: string, end: string): TimeValidationResult;
   setTitle(value: React.SetStateAction<string>): void;
   setDate(value: React.SetStateAction<string>): void;
   setDescription(value: React.SetStateAction<string>): void;
@@ -67,7 +66,6 @@ function SaveEvent({
   isRepeating,
   editingEvent,
   addOrUpdateEvent,
-  getTimeErrorMessage,
   setTitle,
   setDate,
   setDescription,

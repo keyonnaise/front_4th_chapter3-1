@@ -3,7 +3,7 @@ import { http, HttpResponse } from 'msw';
 
 import { setupMockHandlers } from '../../__mocks__/handlersUtils.ts';
 import { events } from '../../__mocks__/response/mockEvents.json' assert { type: 'json' };
-import { useEventOperations } from '../../hooks/useEventOperations.ts';
+import { useEventOperations } from '../../pages/scheduler/model/index.ts';
 import { server } from '../../setupTests.ts';
 import { Event, EventSchema } from '../../types.ts';
 
